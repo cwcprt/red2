@@ -1,0 +1,37 @@
+name: Docker 4
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: 'Docker image to pull'
+        required: true
+        type: string
+jobs:
+  export-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+          
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      - name: Pull image
+        run: docker pull "${{ github.event.inputs.image }}"
+      - name: Save image to tar
+        run: docker save "${{ github.event.inputs.image }}" | gzip > image.tar.gz
+      - name: Upload tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-tar-gz
+          path: image.tar.gz
