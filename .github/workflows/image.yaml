@@ -1,0 +1,20 @@
+name: Docker
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: 'Docker image to pull'
+        required: true
+        type: string
+jobs:
+  export-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull image
+        run: docker pull "${{ github.event.inputs.image }}"
+      - name: Save image to tar
+        run: docker save "${{ github.event.inputs.image }}" -o image.tar
+      - name: Base64 output
+        run: base64 image.tar
+      
